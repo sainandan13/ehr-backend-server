@@ -31,21 +31,24 @@ class PatientService @Inject constructor(
     private val logger: Logger = Logger.getLogger(PatientService::class.java)
 
     fun generateNextMrn(facilityId: String, lastMrn: String?): String {
-        val hosid = facilityId.toString()
-        // Extract last numeric registration number
+        // Pad facilityId to 3 digits
+        val paddedFacilityId = facilityId.padStart(3, '0')
+
+        // Extract last registration number from MRN (if any)
         val lastRegNum = lastMrn
             ?.split("-")
-            ?.takeLast(3)
+            ?.takeLast(2) // Only take the registration number part (0000-0001)
             ?.joinToString("")
             ?.toLongOrNull() ?: 0L
 
-        // Increment
         val nextRegNum = lastRegNum + 1
 
-        // Format as XX-XXXX-XXXX (zero-padded to 8 digits)
-        val padded = nextRegNum.toString().padStart(8, '0')
-        val formatted = "${padded.substring(0,2)}-${padded.substring(2,6)}-${padded.substring(6,8)}"
-        return "$hosid-$formatted"
+        // Pad to 8 digits, then split into "0000-0001"
+        val paddedRegNum = nextRegNum.toString().padStart(8, '0')
+        val formattedRegNum = "${paddedRegNum.substring(0,4)}-${paddedRegNum.substring(4,8)}"
+
+        // Combine: "001-0000-0001"
+        return "$paddedFacilityId-$formattedRegNum"
     }
     @Transactional
     fun register(dto: PatientRegistrationDto): PatientResponseDto {
