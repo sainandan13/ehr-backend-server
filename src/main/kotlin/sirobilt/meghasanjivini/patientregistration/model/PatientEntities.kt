@@ -8,13 +8,20 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
+/**
+ * NOTE: Ensure the Kotlin no-arg compiler plugin is enabled for JPA entities
+ * (e.g., kotlin("plugin.noarg") with annotation "jakarta.persistence.Entity").
+ * With that in place, explicit no-arg constructors are not required.
+ */
+
 @Entity
 @Table(name = "patients")
 class Patient(
     @Id @Column(name = "patient_id")
-    var id: UUID = UUID.randomUUID(),
+    var upId: String = "",
 
-    var facilityId: UUID = UUID.randomUUID(),
+    @Column(name = "facility_id")
+    var facilityId: String = "",
 
     @Enumerated(EnumType.STRING)
     var identifierType: IdentifierType = IdentifierType.ABHA,
@@ -27,65 +34,66 @@ class Patient(
     var lastName: String? = null,
     var dateOfBirth: LocalDate? = null,
     var age: Int? = null,
+
     @Enumerated(EnumType.STRING)
     var gender: Gender? = null,
     @Enumerated(EnumType.STRING)
     var bloodGroup: BloodGroup? = null,
     @Enumerated(EnumType.STRING)
     var maritalStatus: MaritalStatus? = null,
+
     var citizenship: String? = null,
     var religion: String? = null,
     var caste: String? = null,
     var occupation: String? = null,
     var education: String? = null,
     var annualIncome: String? = null,
+
     var registrationDate: OffsetDateTime = OffsetDateTime.now(),
     var isActive: Boolean = true,
     var isDeceased: Boolean = false,
 
-    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var contacts: MutableList<PatientContact> = mutableListOf(),
 
-    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var addresses: MutableList<PatientAddress> = mutableListOf(),
 
-    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var emergencyContacts: MutableList<EmergencyContact> = mutableListOf(),
 
-    @OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var billingReferral: BillingReferral? = null,
 
-    @OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var insurance: PatientInsurance? = null,
 
-    @OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var abha: PatientAbha? = null,
 
-    @OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var informationSharing: InformationSharing? = null,
 
-    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var referrals: MutableList<Referral> = mutableListOf(),
 
-    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var relationships: MutableList<PatientRelationship> = mutableListOf(),
 
-    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference
     var tokens: MutableList<PatientToken> = mutableListOf()
 ) {
-    override fun toString(): String {
-        return "Patient(id=$id, name=$firstName $lastName)"
-    }
+    override fun toString(): String = "Patient(upId=$upId, name=$firstName $lastName)"
 }
 
 @Entity
@@ -97,40 +105,37 @@ class PatientContact(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
-    var mobileNumber: String? = "",
+    var mobileNumber: String? = null,
     var phoneNumber: String = "",
     var email: String? = null,
+
     @Enumerated(EnumType.STRING)
     var preferredContactMode: ContactMode? = null,
     @Enumerated(EnumType.STRING)
     var phoneContactPreference: PhonePref? = null,
     var consentToShare: Boolean = false
 ) {
-    override fun toString(): String {
-        return "PatientContact(contactId=$contactId, mobileNumber=$mobileNumber)"
-    }
+    override fun toString(): String = "PatientContact(id=$contactId, mobile=$mobileNumber)"
 }
 
 @Entity
 @Table(name = "emergency_contacts")
 class EmergencyContact(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var emergencyContactId: Long = 0,
+    var emergencyContactId: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
     var contactName: String? = null,
     var relationship: String? = null,
     var phoneNumber: String? = null
 ) {
-    override fun toString(): String {
-        return "EmergencyContact(id=$emergencyContactId, name=$contactName)"
-    }
+    override fun toString(): String = "EmergencyContact(id=$emergencyContactId, name=$contactName)"
 }
 
 @Entity
@@ -142,7 +147,7 @@ class PatientAddress(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
     @Enumerated(EnumType.STRING)
     var addressType: AddressType = AddressType.Present,
@@ -152,11 +157,9 @@ class PatientAddress(
     var pincode: String? = null,
     var districtId: String? = null,
     var stateId: String? = null,
-    var country: String = "India"
+    var country: String? = "India"
 ) {
-    override fun toString(): String {
-        return "PatientAddress(id=$addressId, city=$cityOrVillage)"
-    }
+    override fun toString(): String = "PatientAddress(id=$addressId, city=$cityOrVillage)"
 }
 
 @Entity
@@ -168,14 +171,12 @@ class PatientAbha(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
     var abhaNumber: String? = null,
     var abhaAddress: String? = null
 ) {
-    override fun toString(): String {
-        return "PatientAbha(id=$abhaId, number=$abhaNumber)"
-    }
+    override fun toString(): String = "PatientAbha(id=$abhaId, number=$abhaNumber)"
 }
 
 @Entity
@@ -187,15 +188,13 @@ class BillingReferral(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
     @Enumerated(EnumType.STRING)
     var billingType: BillingType = BillingType.General,
     var referredBy: String? = null
 ) {
-    override fun toString(): String {
-        return "BillingReferral(id=$billingId, type=$billingType)"
-    }
+    override fun toString(): String = "BillingReferral(id=$billingId, type=$billingType)"
 }
 
 @Entity
@@ -207,16 +206,14 @@ class InformationSharing(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
     var shareWithSpouse: Boolean = false,
     var shareWithChildren: Boolean = false,
     var shareWithCaregiver: Boolean = false,
     var shareWithOther: Boolean = false
 ) {
-    override fun toString(): String {
-        return "InformationSharing(id=$shareId)"
-    }
+    override fun toString(): String = "InformationSharing(id=$shareId)"
 }
 
 @Entity
@@ -225,10 +222,10 @@ class PatientInsurance(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var insuranceId: Long? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
     var insuranceProvider: String? = null,
     var policyNumber: String? = null,
@@ -236,9 +233,7 @@ class PatientInsurance(
     var policyEndDate: LocalDate? = LocalDate.now(),
     var coverageAmount: BigDecimal? = BigDecimal.ZERO
 ) {
-    override fun toString(): String {
-        return "PatientInsurance(id=$insuranceId, provider=$insuranceProvider)"
-    }
+    override fun toString(): String = "PatientInsurance(id=$insuranceId, provider=$insuranceProvider)"
 }
 
 @Entity
@@ -250,16 +245,14 @@ class Referral(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
-    var fromFacilityId: UUID = UUID.randomUUID(),
-    var toFacilityId: UUID = UUID.randomUUID(),
+    var fromFacilityId: String? = null,
+    var toFacilityId: String? = null,
     var referralDate: LocalDate = LocalDate.now(),
     var reason: String? = null
 ) {
-    override fun toString(): String {
-        return "Referral(id=$referralId, from=$fromFacilityId, to=$toFacilityId)"
-    }
+    override fun toString(): String = "Referral(id=$referralId, from=$fromFacilityId, to=$toFacilityId)"
 }
 
 @Entity
@@ -271,15 +264,13 @@ class PatientRelationship(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
-    var relativeId: UUID = UUID.randomUUID(),
+    var relativeId: UUID? = null,
     @Enumerated(EnumType.STRING)
-    var relationshipType: RelationType = RelationType.Other
+    var relationshipType: RelationType? = null
 ) {
-    override fun toString(): String {
-        return "PatientRelationship(id=$relationshipId, type=$relationshipType)"
-    }
+    override fun toString(): String = "PatientRelationship(id=$relationshipId, type=$relationshipType)"
 }
 
 @Entity
@@ -291,34 +282,15 @@ class PatientToken(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @JsonBackReference
-    var patient: Patient = Patient(),
+    var patient: Patient? = null,
 
     var tokenNumber: String = "",
-    var issueDate: OffsetDateTime = OffsetDateTime.now(),
-    var expiryDate: OffsetDateTime = OffsetDateTime.now().plusDays(1),
+    var issueDate: OffsetDateTime? = OffsetDateTime.now(),
+    var expiryDate: OffsetDateTime? = OffsetDateTime.now().plusDays(1),
     @Enumerated(EnumType.STRING)
     var status: TokenStatus = TokenStatus.Active,
     var isRegistered: Boolean = false,
-    var allocatedTo: String = ""
+    var allocatedTo: String? = null
 ) {
-    override fun toString(): String {
-        return "PatientToken(id=$tokenId, number=$tokenNumber)"
-    }
-}
-
-@Entity
-@Table(name = "token_sequence")
-class TokenSequence(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var sequenceId: Long? = null,
-
-    @Column(name = "date_of_issue", unique = true)
-    var dateOfIssue: LocalDate = LocalDate.now(),
-
-    @Column(name = "last_token_number")
-    var lastTokenNumber: Int = 0
-) {
-    override fun toString(): String {
-        return "TokenSequence(id=$sequenceId, date=$dateOfIssue, lastNumber=$lastTokenNumber)"
-    }
+    override fun toString(): String = "PatientToken(id=$tokenId, number=$tokenNumber)"
 }

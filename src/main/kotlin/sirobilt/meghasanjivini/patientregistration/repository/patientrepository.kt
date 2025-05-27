@@ -8,7 +8,12 @@ import java.util.*
 import sirobilt.meghasanjivini.patientregistration.model.*
 import java.time.LocalDate
 
-@ApplicationScoped class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
+@ApplicationScoped
+class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
+    fun findLastMrnForFacility(hospitalId: String): String? =
+        find("SELECT p.upId FROM Patient p WHERE p.upId like ?1 ORDER BY p.id DESC", "$hospitalId-%")
+            .firstResult() as String?
+
     fun search(
         id: UUID?, fn: String?, ln: String?,
         mobile: String?, mail: String?,
@@ -124,10 +129,3 @@ import java.time.LocalDate
 @ApplicationScoped class ReferralRepository           : PanacheRepositoryBase<Referral, Long>
 @ApplicationScoped class PatientRelationshipRepository: PanacheRepositoryBase<PatientRelationship, Long>
 @ApplicationScoped class PatientTokenRepository       : PanacheRepositoryBase<PatientToken, Long>
-@ApplicationScoped
-class TokenSequenceRepository : PanacheRepository<TokenSequence, > {
-
-    fun findByDate(date: LocalDate): TokenSequence? {
-        return find("dateOfIssue", date).firstResult()
-    }
-}

@@ -1,7 +1,5 @@
 package sirobilt.meghasanjivini.patientregistration.dto
 
-import jakarta.validation.Valid
-import jakarta.validation.constraints.Email
 import sirobilt.meghasanjivini.patientregistration.model.AddressType
 import sirobilt.meghasanjivini.patientregistration.model.BillingType
 import sirobilt.meghasanjivini.patientregistration.model.BloodGroup
@@ -13,10 +11,6 @@ import sirobilt.meghasanjivini.patientregistration.model.PhonePref
 import sirobilt.meghasanjivini.patientregistration.model.RelationType
 import sirobilt.meghasanjivini.patientregistration.model.Title
 import sirobilt.meghasanjivini.patientregistration.model.TokenStatus
-import sirobilt.meghasanjivini.patientregistration.validation.AbhaNumber
-import sirobilt.meghasanjivini.patientregistration.validation.IndianMobile
-import sirobilt.meghasanjivini.patientregistration.validation.PastDate
-import sirobilt.meghasanjivini.patientregistration.validation.PostalCode
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -28,7 +22,7 @@ import java.util.UUID
 data class PatientRegistrationDto(
 
     // --- mandatory identifying fields ---
-    val facilityId: UUID,
+    val facilityId: String,
     val identifierType: IdentifierType,
     val identifierNumber: String,
 
@@ -70,7 +64,7 @@ data class PatientRegistrationDto(
 data class UpdatePatientDto(
 
     // --- mandatory identifying fields ---
-    val facilityId: UUID,
+    val facilityId: String,
     val identifierType: IdentifierType,
     val identifierNumber: String,
 
@@ -106,8 +100,8 @@ data class UpdatePatientDto(
 
 
 data class PatientResponseDto(
-    val patientId: UUID,
-    val facilityId: UUID,
+    val patientId: String,
+    val facilityId: String,
     val identifierType: IdentifierType,
     val identifierNumber: String,
     val title: Title? = null,
@@ -172,7 +166,7 @@ data class AddressDto(
     val pincode: String? = null,
     val districtId: String? = null,
     val stateId: String? = null,
-    val country: String = "India"
+    val country: String? = "India"
 )
 
 data class AbhaDto(
@@ -209,15 +203,15 @@ data class PatientInsuranceDto(
 )
 
 data class ReferralDto(
-    val fromFacilityId: UUID,
-    val toFacilityId: UUID,
+    val fromFacilityId: String?,
+    val toFacilityId: String?,
     val referralDate: LocalDate,
     val reason: String?
 )
 
 data class PatientRelationshipDto(
-    val relativeId: UUID,
-    val relationshipType: RelationType
+    val relativeId: UUID?,
+    val relationshipType: RelationType?
 )
 
 data class TokenDto(
@@ -226,7 +220,7 @@ data class TokenDto(
     val expiryDate: LocalDate? = null,
     val status: TokenStatus = TokenStatus.Active,
     val isRegistered: Boolean = false,
-    val allocatedTo: String
+    val allocatedTo: String? = null
 )
 
 data class PatientListResponseDto(

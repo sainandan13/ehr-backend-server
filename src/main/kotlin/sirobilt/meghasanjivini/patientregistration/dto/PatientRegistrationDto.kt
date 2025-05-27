@@ -7,8 +7,9 @@ import sirobilt.meghasanjivini.patientregistration.model.PatientContact
 import sirobilt.meghasanjivini.patientregistration.model.PatientInsurance
 
 /* PatientRegistrationDto.kt */
-fun PatientRegistrationDto.toEntity(): Patient {
+fun PatientRegistrationDto.toEntity(mrn : String): Patient {
     val p = Patient(
+        upId = mrn,
         facilityId       = facilityId,
         identifierType   = identifierType,
         identifierNumber = identifierNumber,
