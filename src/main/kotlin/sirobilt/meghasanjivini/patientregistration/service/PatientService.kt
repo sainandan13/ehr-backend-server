@@ -33,22 +33,23 @@ class PatientService @Inject constructor(
     fun generateNextMrn(facilityId: String, lastMrn: String?): String {
         // Pad facilityId to 3 digits
         val paddedFacilityId = facilityId.padStart(3, '0')
+        val paddedNetworkId: String = "00"
 
         // Extract last registration number from MRN (if any)
-        val lastRegNum = lastMrn
+        val regNum = lastMrn
             ?.split("-")
-            ?.takeLast(2) // Only take the registration number part (0000-0001)
-            ?.joinToString("")
+            ?.takeIf { it.size == 4 }
+            ?.let { it[2] + it[3] }
             ?.toLongOrNull() ?: 0L
 
-        val nextRegNum = lastRegNum + 1
+        val nextRegNum = regNum + 1
 
         // Pad to 8 digits, then split into "0000-0001"
         val paddedRegNum = nextRegNum.toString().padStart(8, '0')
         val formattedRegNum = "${paddedRegNum.substring(0,4)}-${paddedRegNum.substring(4,8)}"
 
-        // Combine: "001-0000-0001"
-        return "$paddedFacilityId-$formattedRegNum"
+
+        return "$paddedFacilityId-$paddedNetworkId-$formattedRegNum"
     }
     @Transactional
     fun register(dto: PatientRegistrationDto): PatientResponseDto {
@@ -151,8 +152,8 @@ class PatientService @Inject constructor(
 
 
     @Transactional
-    fun update(id: UUID, dto: UpdatePatientDto): PatientResponseDto {
-        val p = patientRepo.findById(id) ?: throw NotFoundException()
+    fun update(upId: String, dto: UpdatePatientDto): PatientResponseDto {
+        val p = patientRepo.findByUpId(upId) ?: throw NotFoundException()
 
         // — Scalar fields —
         dto.facilityId     ?.let { p.facilityId     = it }
@@ -379,7 +380,7 @@ class PatientService @Inject constructor(
     }
 
     fun search(
-        id: UUID?,
+        id: String?,
         first: String?, last: String?,
         mobile: String?, email: String?,
         dobFrom: LocalDate?, dobTo: LocalDate?
@@ -394,6 +395,7 @@ class PatientService @Inject constructor(
 
 
 }
+
 
 
 fun Patient.toDto(): PatientResponseDto {

@@ -53,7 +53,7 @@ class PatientController @Inject constructor(
     @PUT @Path("/{id}") @Transactional
     @Operation(summary = "Update patient details; identifier* fields are ignored.")
     fun update(
-        @PathParam("id") id: UUID,
+        @PathParam("id") id: String,
         @Valid dto: UpdatePatientDto   // a DTO that omits identifier fields
     ): PatientResponseDto =
         patientSvc.update(id, dto)
@@ -62,7 +62,7 @@ class PatientController @Inject constructor(
     @GET
     @Operation(summary = "List or search patients")
     fun searchOrList(
-        @QueryParam("id") id: UUID?,
+        @QueryParam("id") id: String?,
         @QueryParam("firstName") firstName: String?,
         @QueryParam("lastName") lastName: String?,
         @QueryParam("mobile") mobile: String?,

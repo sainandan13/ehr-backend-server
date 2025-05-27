@@ -10,12 +10,20 @@ import java.time.LocalDate
 
 @ApplicationScoped
 class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
-    fun findLastMrnForFacility(hospitalId: String): String? =
-        find("SELECT p.upId FROM Patient p WHERE p.upId like ?1 ORDER BY p.id DESC", "$hospitalId-%")
-            .firstResult() as String?
+    fun findLastMrnForFacility(facilityId: String): String? {
+        val paddedFacilityId = facilityId.padStart(3, '0')
+        return find(
+            """
+        SELECT p.upId FROM Patient p 
+        WHERE p.upId LIKE ?1 
+        ORDER BY CAST(REPLACE(SUBSTRING(p.upId, 8), '-', '') AS long) DESC
+        """.trimIndent(),
+            "$paddedFacilityId-00-%"
+        ).firstResult() as String?
+    }
 
     fun search(
-        id: UUID?, fn: String?, ln: String?,
+        upId: String?, fn: String?, ln: String?,
         mobile: String?, mail: String?,
         from: LocalDate?, to: LocalDate?
     ) = find(
@@ -23,7 +31,7 @@ class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
     SELECT DISTINCT p
       FROM Patient p
       LEFT JOIN PatientContact c ON c.patient = p
-     WHERE (:id   IS NULL OR p.id = :id)
+     WHERE (:upId   IS NULL OR p.upId = :upId)
        AND (:fn   IS NULL OR p.firstName ILIKE :fn)
        AND (:ln   IS NULL OR p.lastName  ILIKE :ln)
        AND (:mob  IS NULL OR c.phoneNumber LIKE :mob)
@@ -32,7 +40,7 @@ class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
        AND (:to   IS NULL OR p.dateOfBirth <= :to)
     """.trimIndent(),
         mapOf(
-            "id"   to id,
+            "id"   to upId,
             "fn"   to fn   ?.let { "%$it%" },
             "ln"   to ln   ?.let { "%$it%" },
             "mob"  to mobile?.let { "%$it%" },
@@ -41,6 +49,11 @@ class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
             "to"   to to
         )
     ).list()
+
+
+        fun findByUpId(upId: String): Patient? {
+            return find("upId", upId).firstResult()
+        }
 
     fun searchByQuery(query: String, page: Int, size: Int): List<Patient> {
         val search = "%${query.lowercase()}%"
@@ -81,6 +94,8 @@ class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
         """.trimIndent(),
             mapOf("search" to search)
         ).firstResult() as Long
+
+
     }
 
 
