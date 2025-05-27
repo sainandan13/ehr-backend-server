@@ -12,7 +12,7 @@ import org.postgresql.core.BaseConnection;
  * Flyway Java migration for V3: enable pgcrypto, alter id default,
  * and import lookup_values from CSV on the classpath.
  */
-public class V3__ImportLookupValues extends BaseJavaMigration {
+public class V4__ImportLookupValues extends BaseJavaMigration {
 
     @Override
     public void migrate(Context context) throws Exception {

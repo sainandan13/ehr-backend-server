@@ -18,7 +18,7 @@ class PatientService @Inject constructor(
     private val addressRepo: PatientAddressRepository,
     private val emergencyRepo: EmergencyContactRepository,
     private val insuranceRepo: PatientInsuranceRepository,
-    private val tokenManagerService: TokenManagerService,
+
     private val tokenRepository: PatientTokenRepository,
     private val billingReferralRepo: BillingReferralRepository,
     private val infoSharingRepo: InformationSharingRepository,
@@ -30,13 +30,34 @@ class PatientService @Inject constructor(
 
     private val logger: Logger = Logger.getLogger(PatientService::class.java)
 
+    fun generateNextMrn(facilityId: String, lastMrn: String?): String {
+        val hosid = facilityId.toString()
+        // Extract last numeric registration number
+        val lastRegNum = lastMrn
+            ?.split("-")
+            ?.takeLast(3)
+            ?.joinToString("")
+            ?.toLongOrNull() ?: 0L
 
+        // Increment
+        val nextRegNum = lastRegNum + 1
+
+        // Format as XX-XXXX-XXXX (zero-padded to 8 digits)
+        val padded = nextRegNum.toString().padStart(8, '0')
+        val formatted = "${padded.substring(0,2)}-${padded.substring(2,6)}-${padded.substring(6,8)}"
+        return "$hosid-$formatted"
+    }
     @Transactional
     fun register(dto: PatientRegistrationDto): PatientResponseDto {
         logger.info("Patient registration started")
 
+        val lastMrn = patientRepo.findLastMrnForFacility(dto.facilityId) // You need to implement this
+
+// 2. Generate next MRN
+        val mrn = generateNextMrn(dto.facilityId, lastMrn)
+
         // 1) create & persist the Patient
-        val patient = dto.toEntity()
+        val patient = dto.toEntity(mrn)
         patientRepo.persist(patient)
 
         // 2) persist contacts
@@ -119,11 +140,7 @@ class PatientService @Inject constructor(
                 patient.tokens.addAll(tokenEntities)
             }
 
-        // 12) generate & persist a new PatientToken
-        val generatedToken: PatientToken = tokenManagerService.generateNewTokenForPatient(patient)
-        tokenRepository.persist(generatedToken)
-        patient.tokens.add(generatedToken)
-        logger.info("Token generated: $generatedToken")
+
 
         // 13) return fully-populated DTO
         return patient.toDto()
@@ -226,9 +243,9 @@ class PatientService @Inject constructor(
                 clear()
                 list.forEach { rel ->
                     add(PatientRelationship(
-                        patient           = p,
-                        relativeId        = rel.relativeId,
-                        relationshipType  = rel.relationshipType
+                        patient = p,
+                        relativeId = rel.relativeId,
+                        relationshipType = rel.relationshipType
                     ))
                 }
             }
@@ -377,13 +394,13 @@ class PatientService @Inject constructor(
 
 
 fun Patient.toDto(): PatientResponseDto {
-    val firstContact = contacts?.firstOrNull()
+    val firstContact = contacts.firstOrNull()
 
     return PatientResponseDto(
-        patientId = id!!,
-        facilityId = facilityId!!,
-        identifierType = identifierType!!,
-        identifierNumber = identifierNumber!!,
+        patientId = upId,
+        facilityId = facilityId,
+        identifierType = identifierType,
+        identifierNumber = identifierNumber,
         title = title,
         firstName = firstName,
         middleName = middleName,
@@ -525,8 +542,8 @@ fun ReferralDto.toEntity(owner: Patient): Referral =
 
 fun PatientRelationshipDto.toEntity(owner: Patient): PatientRelationship =
     PatientRelationship(
-        patient          = owner,
-        relativeId       = this.relativeId,
+        patient = owner,
+        relativeId = this.relativeId,
         relationshipType = this.relationshipType
     )
 

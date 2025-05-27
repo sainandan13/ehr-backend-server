@@ -24,8 +24,7 @@ public class V2__Import_facilities_data extends BaseJavaMigration {
             }
             // Execute the COPY … FROM STDIN
             copyManager.copyIn(
-                    "COPY facilities(col1, col2, col3) " +
-                            "FROM STDIN WITH (FORMAT csv, HEADER true)",
+                    "copy facility(hospital_id, facility_name, facility_type, block, phc_chc_name, location, officer_in_charge, designation, contact_number, official_email, network_id, bed_strength, patient_types, notes, equipments) FROM STDIN WITH (FORMAT csv, HEADER true)",
                     new InputStreamReader(is)
             );
         }
