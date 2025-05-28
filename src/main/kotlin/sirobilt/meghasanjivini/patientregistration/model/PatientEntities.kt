@@ -3,6 +3,7 @@ package sirobilt.meghasanjivini.patientregistration.model
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
+import org.hibernate.annotations.SoftDelete
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -52,6 +53,10 @@ class Patient(
     var registrationDate: OffsetDateTime = OffsetDateTime.now(),
     var isActive: Boolean = true,
     var isDeceased: Boolean = false,
+
+
+    @Column(nullable = false)
+    var softDeleted: Boolean = false,
 
     @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference

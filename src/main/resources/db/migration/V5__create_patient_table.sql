@@ -21,6 +21,7 @@ CREATE TABLE patients (
     registration_date  TIMESTAMP WITH TIME ZONE DEFAULT now(),
     is_active          BOOLEAN DEFAULT true,
     is_deceased        BOOLEAN DEFAULT false,
+    soft_deleted        BOOLEAN DEFAULT false,
 
     CONSTRAINT fk_patients_facility
       FOREIGN KEY (facility_id)
@@ -155,18 +156,4 @@ CREATE TABLE patient_relationships (
       ON DELETE CASCADE
 );
 
-CREATE TABLE patient_tokens (
-    token_id        SERIAL PRIMARY KEY,
-    patient_id      VARCHAR,
-    token_number    VARCHAR,
-    issue_date      TIMESTAMP WITH TIME ZONE,
-    expiry_date     TIMESTAMP WITH TIME ZONE,
-    status          VARCHAR,
-    is_registered   BOOLEAN DEFAULT false,
-    allocated_to    VARCHAR,
 
-    CONSTRAINT fk_patient_tokens_patient
-      FOREIGN KEY (patient_id)
-      REFERENCES patients(patient_id)
-      ON DELETE CASCADE
-);

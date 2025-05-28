@@ -113,7 +113,7 @@ class PatientController @Inject constructor(
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("/{upId}")
     @Operation(
         summary = "Delete a patient",
         description = "Deletes a patient by UUID including all associated data.",

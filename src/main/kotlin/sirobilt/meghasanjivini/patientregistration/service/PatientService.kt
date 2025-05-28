@@ -326,7 +326,7 @@ class PatientService @Inject constructor(
 
 
     fun listAll(): List<PatientResponseDto> =
-        patientRepo.findAll().list().map { it.toDto() }
+        patientRepo.find("softDeleted", false).list().map { it.toDto() }
 
     fun searchByQuery(query: String, page: Int, size: Int): List<Patient> {
         return patientRepo.searchByQuery(query, page, size)
@@ -349,7 +349,7 @@ class PatientService @Inject constructor(
 
     @Transactional
     fun delete(upId: String) {
-        if (!patientRepo.deleteById(upId)) throw NotFoundException()
+        if (!patientRepo.softDeleteById(upId)) throw NotFoundException()
     }
 
     fun getById(upId: String): PatientResponseDto =
