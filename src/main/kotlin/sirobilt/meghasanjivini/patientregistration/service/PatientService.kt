@@ -348,12 +348,12 @@ class PatientService @Inject constructor(
 
 
     @Transactional
-    fun delete(id: UUID) {
-        if (!patientRepo.deleteById(id)) throw NotFoundException()
+    fun delete(upId: String) {
+        if (!patientRepo.deleteById(upId)) throw NotFoundException()
     }
 
-    fun getById(id: UUID): PatientResponseDto =
-        patientRepo.findById(id)?.toDto() ?: throw NotFoundException()
+    fun getById(upId: String): PatientResponseDto =
+        patientRepo.findById(upId)?.toDto() ?: throw NotFoundException()
 
     fun exists(
         firstName: String,

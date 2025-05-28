@@ -119,13 +119,13 @@ class PatientController @Inject constructor(
         description = "Deletes a patient by UUID including all associated data.",
 
     )
-    fun deletePatient(@PathParam("id") id: UUID): Response {
+    fun deletePatient(@PathParam("upId") upId: String): Response {
         try {
-            patientSvc.delete(id)
+            patientSvc.delete(upId)
             return Response.noContent().header("API-Response", "Patient Deleted").build() // 204 No Content on successful deletion
         } catch (e: NotFoundException) {
             return Response.status(Response.Status.NOT_FOUND)
-                .entity(mapOf("error" to "Patient not found with id $id"))
+                .entity(mapOf("error" to "Patient not found with id $upId"))
                 .build()
         } catch (e: Exception) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
