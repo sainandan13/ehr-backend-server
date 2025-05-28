@@ -62,7 +62,7 @@ class PatientController @Inject constructor(
     @GET
     @Operation(summary = "List or search patients")
     fun searchOrList(
-        @QueryParam("id") id: String?,
+        @QueryParam("upId") upId: String?,
         @QueryParam("firstName") firstName: String?,
         @QueryParam("lastName") lastName: String?,
         @QueryParam("mobile") mobile: String?,
@@ -73,8 +73,8 @@ class PatientController @Inject constructor(
         @QueryParam("name") name: String?
     ): List<PatientResponseDto> =
         when {
-            listOf(id, firstName, lastName, mobile, email, dobFrom, dobTo).any { it != null } ->
-                patientSvc.search(id, firstName, lastName, mobile, email, dobFrom, dobTo)
+            listOf(upId, firstName, lastName, mobile, email, dobFrom, dobTo).any { it != null } ->
+                patientSvc.search(upId, firstName, lastName, mobile, email, dobFrom, dobTo)
             !city.isNullOrBlank() || !name.isNullOrBlank() ->
                 patientSvc.searchByCityOrName(city, name)
             else -> patientSvc.listAll()

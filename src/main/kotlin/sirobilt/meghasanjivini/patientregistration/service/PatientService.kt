@@ -255,21 +255,7 @@ class PatientService @Inject constructor(
             }
         }
 
-        dto.tokens?.let { list ->
-            p.tokens.apply {
-                clear()
-                list.forEach { t ->
-                    add(PatientToken(
-                        patient      = p,
-                        tokenNumber  = t.tokenNumber,
 
-                        status       = t.status,
-                        isRegistered = t.isRegistered,
-                        allocatedTo  = t.allocatedTo
-                    ))
-                }
-            }
-        }
 
         // — One-to-one associations: update existing or create new if provided —
         dto.billingReferral?.let { br ->
@@ -380,12 +366,12 @@ class PatientService @Inject constructor(
     }
 
     fun search(
-        id: String?,
+        upId: String?,
         first: String?, last: String?,
         mobile: String?, email: String?,
         dobFrom: LocalDate?, dobTo: LocalDate?
     ): List<PatientResponseDto> =
-        patientRepo.search(id, first, last, mobile, email, dobFrom, dobTo)
+        patientRepo.search(upId, first, last, mobile, email, dobFrom, dobTo)
             .map { it.toDto() }
 
     fun searchByCityOrName(city: String?, name: String?): List<PatientResponseDto> =
@@ -437,7 +423,7 @@ fun Patient.toDto(): PatientResponseDto {
         informationSharing = informationSharing?.toDto(),
         referrals = referrals?.map { it.toDto() },
         relationships = relationships?.map { it.toDto() },
-        tokens = tokens?.map { it.toDto() }
+
     )
 }
 

@@ -95,7 +95,7 @@ data class UpdatePatientDto(
     val insurance:          PatientInsuranceDto?         = null,
     val referrals:          List<ReferralDto>?           = null,
     val relationships:      List<PatientRelationshipDto>?= null,
-    val tokens:             List<TokenDto>?              = null
+
 )
 
 
@@ -136,7 +136,7 @@ data class PatientResponseDto(
     val informationSharing: InformationSharingDto? = null,
     val referrals: List<ReferralDto>? = null,
     val relationships: List<PatientRelationshipDto>? = null,
-    val tokens: List<TokenDto>? = null
+
 )
 
 /* ──────────────────────────────────────────────────────────────── *

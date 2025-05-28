@@ -9,7 +9,7 @@ import sirobilt.meghasanjivini.patientregistration.model.*
 import java.time.LocalDate
 
 @ApplicationScoped
-class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
+class PatientRepository            : PanacheRepositoryBase<Patient, String>{
     fun findLastMrnForFacility(facilityId: String): String? {
         val paddedFacilityId = facilityId.padStart(3, '0')
         return find(
@@ -40,7 +40,7 @@ class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
        AND (:to   IS NULL OR p.dateOfBirth <= :to)
     """.trimIndent(),
         mapOf(
-            "id"   to upId,
+            "upId"   to upId,
             "fn"   to fn   ?.let { "%$it%" },
             "ln"   to ln   ?.let { "%$it%" },
             "mob"  to mobile?.let { "%$it%" },
