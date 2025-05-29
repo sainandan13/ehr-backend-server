@@ -17,12 +17,14 @@ class PatientRepository : PanacheRepositoryBase<Patient, String> {
         return update("softDeleted = true WHERE upId = ?1", upId) > 0
     }
 
+
+
     fun findLastMrnForFacility(facilityId: String): String? {
         val paddedFacilityId = facilityId.padStart(3, '0')
         return find(
             """
             SELECT p.upId FROM Patient p 
-            WHERE p.upId LIKE ?1 AND p.softDeleted = false
+            WHERE p.upId LIKE ?1 
             ORDER BY CAST(REPLACE(SUBSTRING(p.upId, 8), '-', '') AS long) DESC
             """.trimIndent(),
             "$paddedFacilityId-00-%"
@@ -152,4 +154,3 @@ class PatientRepository : PanacheRepositoryBase<Patient, String> {
 @ApplicationScoped class PatientInsuranceRepository  : PanacheRepositoryBase<PatientInsurance, Long>
 @ApplicationScoped class ReferralRepository           : PanacheRepositoryBase<Referral, Long>
 @ApplicationScoped class PatientRelationshipRepository: PanacheRepositoryBase<PatientRelationship, Long>
-@ApplicationScoped class PatientTokenRepository       : PanacheRepositoryBase<PatientToken, Long>

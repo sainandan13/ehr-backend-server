@@ -50,13 +50,13 @@ class PatientController @Inject constructor(
 
 
     /* ---------- update (identifiers immutable) ---------- */
-    @PUT @Path("/{id}") @Transactional
+    @PUT @Path("/{upid}") @Transactional
     @Operation(summary = "Update patient details; identifier* fields are ignored.")
     fun update(
-        @PathParam("id") id: String,
+        @PathParam("upid") upId: String,
         @Valid dto: UpdatePatientDto   // a DTO that omits identifier fields
     ): PatientResponseDto =
-        patientSvc.update(id, dto)
+        patientSvc.update(upId, dto)
 
     /* ---------- search / list ---------- */
     @GET

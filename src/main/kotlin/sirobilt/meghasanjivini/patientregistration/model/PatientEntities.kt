@@ -94,9 +94,7 @@ class Patient(
     @JsonManagedReference
     var relationships: MutableList<PatientRelationship> = mutableListOf(),
 
-    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true)
-    @JsonManagedReference
-    var tokens: MutableList<PatientToken> = mutableListOf()
+
 ) {
     override fun toString(): String = "Patient(upId=$upId, name=$firstName $lastName)"
 }
@@ -278,24 +276,3 @@ class PatientRelationship(
     override fun toString(): String = "PatientRelationship(id=$relationshipId, type=$relationshipType)"
 }
 
-@Entity
-@Table(name = "patient_tokens")
-class PatientToken(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var tokenId: Long? = null,
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id")
-    @JsonBackReference
-    var patient: Patient? = null,
-
-    var tokenNumber: String = "",
-    var issueDate: OffsetDateTime? = OffsetDateTime.now(),
-    var expiryDate: OffsetDateTime? = OffsetDateTime.now().plusDays(1),
-    @Enumerated(EnumType.STRING)
-    var status: TokenStatus = TokenStatus.Active,
-    var isRegistered: Boolean = false,
-    var allocatedTo: String? = null
-) {
-    override fun toString(): String = "PatientToken(id=$tokenId, number=$tokenNumber)"
-}

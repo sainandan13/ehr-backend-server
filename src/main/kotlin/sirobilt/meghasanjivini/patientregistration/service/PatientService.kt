@@ -1,5 +1,6 @@
 package sirobilt.meghasanjivini.patientregistration.service
 
+import io.quarkus.panache.common.Page
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
@@ -19,7 +20,7 @@ class PatientService @Inject constructor(
     private val emergencyRepo: EmergencyContactRepository,
     private val insuranceRepo: PatientInsuranceRepository,
 
-    private val tokenRepository: PatientTokenRepository,
+
     private val billingReferralRepo: BillingReferralRepository,
     private val infoSharingRepo: InformationSharingRepository,
     private val referralRepo: ReferralRepository,
@@ -29,6 +30,23 @@ class PatientService @Inject constructor(
 ) {
 
     private val logger: Logger = Logger.getLogger(PatientService::class.java)
+
+    fun listAllWithCount(page: Int, size: Int): PatientListResponseDto {
+        // Only fetch where softDeleted = false
+        val pageResult = patientRepo
+            .find("softDeleted = false")        // <— filter here
+            .page(Page.of(page, size))          // use Panache Page
+        val totalCount = patientRepo
+            .count("softDeleted = false")       // count only non‐deleted
+        val patients = pageResult
+            .list()
+            .map { it.toDto() }
+        return PatientListResponseDto(
+            patients = patients,
+            totalCount = totalCount
+        )
+    }
+
 
     fun generateNextMrn(facilityId: String, lastMrn: String?): String {
         // Pad facilityId to 3 digits
@@ -57,7 +75,7 @@ class PatientService @Inject constructor(
 
         val lastMrn = patientRepo.findLastMrnForFacility(dto.facilityId) // You need to implement this
 
-// 2. Generate next MRN
+
         val mrn = generateNextMrn(dto.facilityId, lastMrn)
 
         // 1) create & persist the Patient
@@ -136,13 +154,7 @@ class PatientService @Inject constructor(
                 patient.relationships.addAll(relationshipEntities)
             }
 
-        // 11) persist tokens from DTO
-        dto.tokens
-            ?.map { it.toEntity(patient) }
-            ?.also { tokenEntities: List<PatientToken> ->
-                tokenRepository.persist(tokenEntities)
-                patient.tokens.addAll(tokenEntities)
-            }
+
 
 
 
@@ -336,15 +348,7 @@ class PatientService @Inject constructor(
         return patientRepo.countByQuery(query)
     }
 
-    fun listAllWithCount(page: Int, size: Int): PatientListResponseDto {
-        val pageResult = patientRepo.findAll().page(page, size)
-        val totalCount = patientRepo.count()
-        val patients = pageResult.list().map { it.toDto() }
-        return PatientListResponseDto(
-            patients = patients,
-            totalCount = totalCount
-        )
-    }
+
 
 
     @Transactional
@@ -490,14 +494,7 @@ fun PatientRelationship.toDto() = PatientRelationshipDto(
     relationshipType = this.relationshipType
 )
 
-fun PatientToken.toDto() = TokenDto(
-    tokenNumber = this.tokenNumber,
-    issueDate = this.issueDate?.toLocalDate(),
-    expiryDate = this.expiryDate?.toLocalDate(),
-    status = this.status,
-    isRegistered = this.isRegistered,
-    allocatedTo = this.allocatedTo
-)
+
 
 fun AbhaDto.toEntity(owner: Patient): PatientAbha =
     PatientAbha(
@@ -538,15 +535,4 @@ fun PatientRelationshipDto.toEntity(owner: Patient): PatientRelationship =
         relationshipType = this.relationshipType
     )
 
-fun TokenDto.toEntity(owner: Patient): PatientToken =
-    PatientToken(
-        patient      = owner,
-        tokenNumber  = this.tokenNumber,
-        issueDate    = this.issueDate?.atStartOfDay()?.let { java.time.OffsetDateTime.of(it, java.time.ZoneOffset.UTC) }
-            ?: java.time.OffsetDateTime.now(),
-        expiryDate   = this.expiryDate?.atStartOfDay()?.let { java.time.OffsetDateTime.of(it, java.time.ZoneOffset.UTC) }
-            ?: java.time.OffsetDateTime.now().plusDays(1),
-        status       = this.status,
-        isRegistered = this.isRegistered,
-        allocatedTo  = this.allocatedTo
-    )
+
