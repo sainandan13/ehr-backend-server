@@ -185,7 +185,7 @@ class PatientService @Inject constructor(
         dto.caste          ?.let { p.caste          = it }
         dto.occupation     ?.let { p.occupation     = it }
         dto.education      ?.let { p.education      = it }
-        dto.annualIncome   ?.let { p.annualIncome   = it }
+//        dto.annualIncome   ?.let { p.annualIncome   = it }
 
 
         // — One-to-many collections: clear + repopulate if provided —

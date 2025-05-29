@@ -21,6 +21,7 @@ class Patient(
     @Id @Column(name = "patient_id")
     var upId: String = "",
 
+
     @Column(name = "facility_id")
     var facilityId: String = "",
 
