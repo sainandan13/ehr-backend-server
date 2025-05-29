@@ -18,7 +18,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Tag(name = "Patient-Registration")
-@Path("/api/patients")                   // <— keep /api prefix once
+@Path("/patients")                   // <— keep /api prefix once
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class PatientController @Inject constructor(

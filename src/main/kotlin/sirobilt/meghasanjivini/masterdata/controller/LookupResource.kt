@@ -45,7 +45,7 @@ class LookupValueController(
         return service.deactivate(category, value)
     }
 }
-@Path("/api/geo")
+@Path("/geo")
 @Produces(MediaType.APPLICATION_JSON)
 class GeographyResource(
     private val countryService: CountryService,
